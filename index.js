@@ -18,7 +18,7 @@ import addressRoutes from "./routes/address.routes.js";
 import { connectCloudinary } from "./config/cloudinary.js";
 
 const app = express();
-
+app.set("trust proxy", 1);
 app.use(express.json());
 
 app.use(cors({
