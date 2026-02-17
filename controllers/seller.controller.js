@@ -5,42 +5,44 @@ export const sellerLogin = async (req, res) => {
 
     try {
         const { email, password } = req.body;
+
         if (
             email === process.env.SELLER_EMAIL &&
             password === process.env.SELLER_PASSWORD
         ) {
-            const token = jwt.sign({ email: process.env.SELLER_EMAIL }, process.env.JWT_SECRET, {
-                expiresIn: "7d",
+
+            const token = jwt.sign(
+                { email: process.env.SELLER_EMAIL },
+                process.env.JWT_SECRET,
+                { expiresIn: "7d" }
+            );
+
+            // IMPORTANT COOKIE FIX
+            res.cookie("sellerToken", token, {
+                httpOnly: true,
+                secure: true,
+                sameSite: "none",
+                maxAge: 7 * 24 * 60 * 60 * 1000,
+                path: "/"
             });
-            // res.cookie("sellerToken", token, 
-            // {
-            //     httpOnly: true,
-            //     secure: process.env.NODE_ENV === "production",
 
-            //     sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-            //     maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 days;
-            // });
-            res.clearCookie("userToken");
-
-            res.status(200).cookie("sellerToken", token,
-                {
-                    httpOnly: true,
-                    // secure: process.env.NODE_ENV === "production",
-                    // sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-                    secure: true,
-                    sameSite: "none",
-
-                    maxAge: 7 * 24 * 60 * 60 * 1000,
-                }).json({
-                    message: "Login successfully",
-                    success: true,
-                    token: token
-                });
+            return res.status(200).json({
+                message: "Login successfully",
+                success: true
+            });
         }
+
+        return res.status(401).json({
+            message: "Invalid credentials",
+            success: false
+        });
+
     } catch (error) {
         console.error("Error in sellerLogin:", error);
+        res.status(500).json({ message: "Server error" });
     }
 };
+
 
 export const sellerLogout = async (req, res) => {
     try {
@@ -48,13 +50,20 @@ export const sellerLogout = async (req, res) => {
             httpOnly: true,
             secure: true,
             sameSite: "none",
+            path: "/"
         });
-        res.status(200).json({ message: "User Logout successfully", success: true });
+
+        res.status(200).json({
+            message: "Logout successfully",
+            success: true
+        });
+
     } catch (error) {
         console.log("Error in sellerLogout:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 };
+
 
 
 export const isAuthSeller = (req, res) => {
