@@ -27,8 +27,8 @@ export const sellerLogin = async (req, res) => {
                     httpOnly: true,
                     // secure: process.env.NODE_ENV === "production",
                     // sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-                    secure: false,
-                    sameSite: "lax",
+                    secure: true,
+                    sameSite: "none",
 
                     maxAge: 7 * 24 * 60 * 60 * 1000,
                 }).json({
@@ -44,10 +44,10 @@ export const sellerLogin = async (req, res) => {
 
 export const sellerLogout = async (req, res) => {
     try {
-        res.clearCookie("sellerToken", token, {
+        res.clearCookie("sellerToken", {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+            secure: true,
+            sameSite: "none",
         });
         res.status(200).json({ message: "User Logout successfully", success: true });
     } catch (error) {
